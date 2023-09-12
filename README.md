@@ -1,15 +1,21 @@
 # IGC Unity
+This document is currently a work in progress.
 
 Built on Unity version 2021.3.28f1. Works with URP
 
 This plugin will capture renders spun around a target object and export out a JSON file of the relative camera transforms. It can upload the necessary files to the IGC APII to process to re-create a printable mesh.
 
- ## How to use
-* Place *Capturer* Prefab within Scene and add the object to capture to the Target parameter within _Capturer/CharacterCapture_ Script
+## How to use
+### Capturing
+* Place *Capturer* Prefab within Scene and add the object to capture to the Target parameter within the _CharacterCapture.cs_ Script
 * Adjust the Height Offset within the prefab to point to the center of Target character
 * Adjust _Capture Radius_ to fit whole character within renders
 * Renders/files will be outputed to *PROJECT_NAME/OUTPUT/Captures/*
-* The *Capture Checkout* Script has an empty function *UseQRTexture* to put any logic in needed to integrate the QR Code that leads to the checkout
+* Use function *Capture()* within *CharacterCapture.cs* Script to export out all renders/files. This may freeze the game up to a couple seconds depending on the dimensions of the renders.
+### Uploading
+* Use *UploadCaptures()* within *CharacterCapture.cs* Script. This will upload all images and files within *PROJECTNAME/OUTPUTS/Captures/* to the API
+* * The API will return a URL to the checkout page after the upload is complete
+* The *Capture Checkout* Script has an empty function *UseQRTexture* to put any logic in needed to integrate a QR Code texture that leads to the checkout
 
 **Parameters:**
 * Character Capture > Target
@@ -27,12 +33,9 @@ This plugin will capture renders spun around a target object and export out a JS
 * Character Capture > Show Layers
     * The layers that the character meshes should live on. Used for masking out character from the background. If empty, will default to rendering everything
 
-* Capturer Lighting > Use Scene Lights
-    * If false, will set up a basic point light set up around the target
-* Capturer Lighting > Lights To Turn Off
-    * If Use Scene Lights is false, will turn off any lights within the array during capture
- 
 ## Best Practices
+* At least 100 frames at 2048x2048 should be uploaded for best quality
+* The mesh should not have any floating pieces
 * Having an evenly lit character will give the best results. Any shadows on the mesh will be baked into the final model.
 * Pure unlit shaders are not recommended. The meshing process needs shading to figure out the depth of points within a model.
 * Recommended:
