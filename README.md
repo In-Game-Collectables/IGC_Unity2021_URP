@@ -6,18 +6,24 @@ Built on Unity version 2021.3.28f1. Works with URP
 This plugin will capture renders spun around a target object and export out a JSON file of the relative camera transforms. It can upload the necessary files to the IGC APII to process to re-create a printable mesh.
 
 ## How to use
-### Capturing
+### Step 1: Set Up
+* Input your API_key
+### Step 1: Capturing
 * Place *Capturer* Prefab within Scene and add the object to capture to the Target parameter within the _CharacterCapture.cs_ Script
 * Adjust the Height Offset within the prefab to point to the center of Target character
 * Adjust _Capture Radius_ to fit whole character within renders
-* Renders/files will be outputed to *PROJECT_NAME/OUTPUT/Captures/*
 * Use function *Capture()* within *CharacterCapture.cs* Script to export out all renders/files. This may freeze the game up to a couple seconds depending on the dimensions of the renders.
-### Uploading
+* Renders/files will be outputed to *PROJECT_NAME/OUTPUT/Captures/*
+### Step 2: Uploading
 * Use *UploadCaptures()* within *CharacterCapture.cs* Script. This will upload all images and files within *PROJECTNAME/OUTPUTS/Captures/* to the API
-* * The API will return a URL to the checkout page after the upload is complete
+* The API will return a URL to the checkout page after the upload is complete
+### Step 3: Checkout
+* After the upload is done, a texture of the QR code will be fetched from the API
 * The *Capture Checkout* Script has an empty function *UseQRTexture* to put any logic in needed to integrate a QR Code texture that leads to the checkout
 
-### Parameters
+<br />
+
+#### Parameters
 * Character Capture > Target
     * The focus of the Capturer. Will move cameras to spin around the origin of the Target
 * Character Capture > Capture Radius
