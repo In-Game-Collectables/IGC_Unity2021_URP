@@ -4,68 +4,58 @@ using System.IO;
 
 using UnityEngine.Networking;
 using System;
+using UnityEditor.PackageManager.Requests;
 
-public class CaptureCheckout : MonoBehaviour
+namespace IGC
 {
-    public string TestURL = "https://images.dog.ceo/breeds/pinscher-miniature/n02107312_6617.jpg";
-
-    private void UseQRTexture(Texture2D QRCode)
+    public class CaptureCheckout : MonoBehaviour
     {
-        /* Put logic in this function to use the QRCode texture for whatevs */
-        
+        public string TestURL = "https://images.dog.ceo/breeds/pinscher-miniature/n02107312_6617.jpg";
 
+        private IEnumerator checkoutCoroutine;
 
-
-
-        //Finish();
-    }
-
-
-    // -------------------------------------------------------------
-
-
-    public void GetCheckoutQR(string CheckoutURL, string SavePath = " ")
-    {
-        StartCoroutine(GetFromAPI(CheckoutURL + "/qr", (callback) =>
+        public void GetCheckoutQR(string CheckoutURL, Action<string, Texture2D> successCallback, Action<string> failureCallback, string SavePath = " ")
         {
-            UseQRTexture(callback);
-            Debug.Log("Received QR Code texture");
-        }, SavePath: SavePath));
-    }
-    private IEnumerator GetFromAPI(string URL, Action<Texture2D> callback, string SavePath = " ")
-    {
-        UnityWebRequest request = UnityWebRequestTexture.GetTexture(URL);
-        yield return request.SendWebRequest();
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.Log("ERROR: " + request.error);
-            Debug.Log("RESPONSE CODE: " + request.responseCode);
+            checkoutCoroutine = GetQRFromAPI(CheckoutURL + "/qr", successCallback, failureCallback, SavePath: SavePath);
+            StartCoroutine(checkoutCoroutine);
         }
-        else
+
+        private IEnumerator GetQRFromAPI(string URL, Action<string, Texture2D> successCallback, Action<string> failureCallback, string SavePath = " ")
         {
-            Debug.Log("SUCCESS: Connected to API");
-            Texture2D QRCode = new Texture2D(1,1);
-            QRCode = DownloadHandlerTexture.GetContent(request);
-            if (QRCode == null)
+            var request = UnityWebRequestTexture.GetTexture(URL);
+            yield return request.SendWebRequest();
+            if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log("ERROR: Image seems to be empty?");
+                Debug.Log("ERROR: " + request.error);
+                Debug.Log("RESPONSE CODE: " + request.responseCode);
+                checkoutCoroutine = null;
+                failureCallback("Response Code " + request.responseCode + ". QR Code Error: " + request.error);
             }
             else
             {
-                // Optional?
-                if (SavePath != " ")
+                Debug.Log("SUCCESS: Connected to API");
+                var qrCode = new Texture2D(1, 1);
+                qrCode = DownloadHandlerTexture.GetContent(request);
+                if (qrCode == null)
                 {
-                    SavePath = SavePath + "Checkout_QR.png";
-                    byte[] bytes = QRCode.EncodeToPNG();
-                    File.WriteAllBytes(SavePath, bytes);
+                    Debug.Log("ERROR: Image seems to be empty?");
+                    checkoutCoroutine = null;
+                    failureCallback("QR Code image seems to be empty");
                 }
-            }
-            callback(QRCode);
-        }
-    }
+                else
+                {
+                    // Optional?
+                    if (SavePath != " ")
+                    {
+                        SavePath = SavePath + "Checkout_QR.png";
+                        byte[] bytes = qrCode.EncodeToPNG();
+                        File.WriteAllBytes(SavePath, bytes);
+                    }
+                    checkoutCoroutine = null;
+                    successCallback(URL, qrCode);
+                }
 
-    private void Finish()
-    {
-        Destroy(gameObject);
+            }
+        }
     }
 }

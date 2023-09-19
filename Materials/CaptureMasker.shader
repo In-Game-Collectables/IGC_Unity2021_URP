@@ -1,4 +1,4 @@
-Shader "Unlit/CaptureMasker"
+Shader "IGC/CaptureMasker"
 {
     Properties
     {
