@@ -7,23 +7,29 @@ This plugin will capture renders spun around a target object and export out a JS
 
 ## How to use
 ### Step 1: Set Up
-* Input your API_key
-### Step 1: Capturing
+* Get your API Key from the [IGC Platform](https://platform.igc.studio/collectables)
 * Place *Capturer* Prefab within Scene and add the object to capture to the Target parameter within the _CharacterCapture.cs_ Script
+* Input your API Key in the *Capturer*'s API_Key parameter
 * Adjust the Height Offset within the prefab to point to the center of Target character
 * Adjust _Capture Radius_ to fit whole character within renders
-* Use function *Capture()* within *CharacterCapture.cs* Script to export out all renders/files. This may freeze the game up to a couple seconds depending on the dimensions of the renders.
+* Add all Layers the target is shown on to *Shown Layers*. Hide any other objects in the same layers during capture, or else they can also appear in the final model.
+### Step 2: Capturing
+* Use function *StartCapture()* within *CharacterCapture.cs* Script to export out all renders/files. This may freeze the game up to a couple seconds depending on the dimensions of the renders if Asynchronous Capture is not used
+    * If Asynchronous Capture is turned on, the event *onCaptureFinish* will be called when Capturing is finished
 * Renders/files will be outputed to *PROJECT_NAME/OUTPUT/Captures/*
-### Step 2: Uploading
+### Step 3: Uploading
 * Use *UploadCaptures()* within *CharacterCapture.cs* Script. This will upload all images and files within *PROJECTNAME/OUTPUTS/Captures/* to the API
-* The API will return a URL to the checkout page after the upload is complete
-### Step 3: Checkout
-* After the upload is done, a texture of the QR code will be fetched from the API
+    * The event *onUploadSuccess* will be called when the Upload is finished
+    * The event *onUploadFailed* will be called and give a string description on why the Upload has failed
+### Step 4: Checkout
+* After the upload is done, *onUploadSuccess* will be given a URL to the checkout page and a QR Code texture leading to the same page
 * The *Capture Checkout* Script has an empty function *UseQRTexture* to put any logic in needed to integrate a QR Code texture that leads to the checkout
 
 <br />
 
 #### Parameters
+* Character Capture > API_Key
+    *  API Key for the IGC Platform
 * Character Capture > Target
     * The focus of the Capturer. Will move cameras to spin around the origin of the Target
 * Character Capture > Capture Radius
@@ -34,9 +40,11 @@ This plugin will capture renders spun around a target object and export out a JS
     * Number of images to be rendered out
 * Character Capture > Dimension
     * Dimension of both sides of image
+* Character Capture > Should Capture Asynchronously
+    * Makes Captures Asynchronous instead of holding up the game during capture. This option should not be used if the Target character or lighting can animate/change between frames.
 * Character Capture > Height Offset
     * Offsets the y-axis of the focal point of the capture. (TODO: find focal point based on mesh)
-* Character Capture > Show Layers
+* Character Capture > Shown Layers
     * The layers that the character meshes should live on. Used for masking out character from the background. If empty, will default to rendering everything
 
 ## Best Practices
@@ -46,7 +54,7 @@ This plugin will capture renders spun around a target object and export out a JS
 * Having an evenly lit character will give the best results. Any shadows on the mesh will be baked into the final model.
 * Pure unlit shaders are not recommended. The meshing process needs shading to figure out the depth of points within a model.
 * Recommended:
-    * Lit shaders with fixed lights around character
+    * Lit shaders with fixed lights even;y around character
     * Unlit shaders with strong ambient occlusion
 * Materials with high roughness and little specular are recommended.
 * Highly specular and highly metallic materials will create artifacts within the final model.

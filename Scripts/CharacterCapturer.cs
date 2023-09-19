@@ -16,8 +16,8 @@ namespace IGC
             _32 = 32
         }
 
-        [Tooltip("GameObject that the camera will capture")]
-        public string API_Key = "d562621c-37f5-4d33-8413-15601bd6354a";
+        [Tooltip("API Key for the IGC Platform")]
+        public string API_Key = "TEST_KEY";
 
         [Space(10)]
 
@@ -40,6 +40,7 @@ namespace IGC
 
         [Space(10)]
 
+        [Tooltip("Should only be used if target character and lighting does not change at all between frames")]
         public bool shouldCaptureAsynchronously = true;
 
         [Space(10)]
@@ -60,10 +61,8 @@ namespace IGC
         private CaptureUploader Uploader;
 
 
-        public delegate void CaptureSuccess(string message);
-        public delegate void CaptureError(string message);
-        public event CaptureSuccess onCaptureSuccess;
-        public event CaptureError onCaptureError;
+        public delegate void CaptureFinish(string message);
+        public event CaptureFinish onCaptureFinish;
 
         public delegate void UploadSuccess(string url, Texture2D qrcode);
         public delegate void UploadError(string message);
@@ -210,8 +209,6 @@ namespace IGC
                 CI = AddToCaptureInformation(i, CI, center, transform: transform, filePath: filePath);
 
                 // wait until next frame...
-                // could also process more capture frames per render frame
-                // generally frame capture is quite slow though!
                 yield return null;
             }
             SaveInformationToJson(CI);
@@ -221,9 +218,9 @@ namespace IGC
             void CaptureFinished(string message)
             {
                 captureCoroutine = null;
-                if (onCaptureSuccess != null)
+                if (onCaptureFinish != null)
                 {
-                    onCaptureSuccess(message);
+                    onCaptureFinish(message);
                 }
             }
         }
