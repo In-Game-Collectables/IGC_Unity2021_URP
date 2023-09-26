@@ -21,7 +21,7 @@ namespace IGC
             None,
             Capturing,
             Uploading,
-            CheckOut
+            CheckingOut
         }
 
         [Tooltip("API Key for the IGC Platform")]

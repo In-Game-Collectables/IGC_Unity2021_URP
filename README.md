@@ -49,6 +49,9 @@ This plugin will capture renders spun around a target object and export out a JS
 * Character Capture > Shown Layers
     * The layers that the character meshes should live on. Used for masking out character from the background. If empty, will default to rendering everything
 
+## Notes
+* The variable *CurrentStage* on the *Capturer* can be used to see if it is currently Capturing, Uploading, CheckingOut, or not doing anything.
+
 <br />
 
 ## Best Practices
