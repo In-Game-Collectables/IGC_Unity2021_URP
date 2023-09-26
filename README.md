@@ -61,7 +61,7 @@ This plugin will capture renders spun around a target object and export out a JS
 * Having an evenly lit character will give the best results. Any shadows on the mesh will be baked into the final model.
 * Pure unlit shaders are not recommended. The meshing process needs shading to figure out the depth of points within a model.
 * Recommended:
-    * Lit shaders with fixed lights even;y around character
+    * Lit shaders with fixed lights evenly around character
     * Unlit shaders with strong ambient occlusion
 * Materials with high roughness and little specular are recommended.
 * Highly specular and highly metallic materials will create artifacts within the final model.

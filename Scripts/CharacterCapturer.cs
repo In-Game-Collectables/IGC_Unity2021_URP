@@ -301,7 +301,7 @@ namespace IGC
 
             void CheckoutStarted()
             {
-                CurrentStage = IGCStage.CheckOut;
+                CurrentStage = IGCStage.CheckingOut;
             }
 
             void UploadFailed(string errorMessage)
