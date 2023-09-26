@@ -3,7 +3,7 @@ This document is currently a work in progress.
 
 Built on Unity version 2021.3.28f1. Works with URP
 
-This plugin will capture renders spun around a target object and export out a JSON file of the relative camera transforms. It can upload the necessary files to the IGC APII to process to re-create a printable mesh.
+This plugin will capture renders spun around a target object and export out a JSON file of the relative camera transforms. It will upload the necessary files to the IGC API to process to re-create a printable mesh.
 
 ## How to use
 ### Step 1: Set Up
@@ -13,17 +13,21 @@ This plugin will capture renders spun around a target object and export out a JS
 * Adjust the Height Offset within the prefab to point to the center of Target character
 * Adjust _Capture Radius_ to fit whole character within renders
 * Add all Layers the target is shown on to *Shown Layers*. Hide any other objects in the same layers during capture, or else they can also appear in the final model.
+* Read the [Best Practices](https://github.com/In-Game-Collectables/IGC_Unity2021#best-practices) section for the ideal set up
 ### Step 2: Capturing
-* Use function *StartCapture()* within *CharacterCapture.cs* Script to export out all renders/files. This may freeze the game up to a couple seconds depending on the dimensions of the renders if Asynchronous Capture is not used
-    * If Asynchronous Capture is turned on, the event *onCaptureFinish* will be called when Capturing is finished
-* Renders/files will be outputed to *PROJECT_NAME/OUTPUT/Captures/*
+* Use function *StartCapture()* within *CharacterCapture.cs* Script to export out all renders/files.
+    * The function has an optional parameter *asyncCapture* that determines if there should be a delay between captures
+        * If *asyncCapture* is false, it may freeze the game up to a couple seconds depending on the dimensions of the renders
+        * *asyncCapture* should NOT be used if the Target character or lighting can animate/change between frames
+* The event *onCaptureFinish* will be called when Capturing is finished
+* Renders/files will be outputed to *PROJECT_NAME/OUTPUT/Captures/* by default
+* The event *StartCaptureAndUpload()* can be used to combine the steps for Capturing and Uploading
 ### Step 3: Uploading
-* Use *UploadCaptures()* within *CharacterCapture.cs* Script. This will upload all images and files within *PROJECTNAME/OUTPUTS/Captures/* to the API
+* Use *UploadCaptures()* within *CharacterCapture.cs* Script. This will upload all images and files within the Captures folder to the API
     * The event *onUploadSuccess* will be called when the Upload is finished
     * The event *onUploadFailed* will be called and give a string description on why the Upload has failed
 ### Step 4: Checkout
 * After the upload is done, *onUploadSuccess* will be given a URL to the checkout page and a QR Code texture leading to the same page
-* The *Capture Checkout* Script has an empty function *UseQRTexture* to put any logic in needed to integrate a QR Code texture that leads to the checkout
 
 <br />
 
@@ -40,12 +44,12 @@ This plugin will capture renders spun around a target object and export out a JS
     * Number of images to be rendered out
 * Character Capture > Dimension
     * Dimension of both sides of image
-* Character Capture > Should Capture Asynchronously
-    * Makes Captures Asynchronous instead of holding up the game during capture. This option should not be used if the Target character or lighting can animate/change between frames.
 * Character Capture > Height Offset
     * Offsets the y-axis of the focal point of the capture. (TODO: find focal point based on mesh)
 * Character Capture > Shown Layers
     * The layers that the character meshes should live on. Used for masking out character from the background. If empty, will default to rendering everything
+
+<br />
 
 ## Best Practices
 * At least 100 frames at 2048x2048 should be uploaded for best quality.

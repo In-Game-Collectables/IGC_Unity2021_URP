@@ -7,88 +7,73 @@ using UnityEngine.Networking;
 
 namespace IGC
 {
-    public class CaptureUploader : MonoBehaviour
-    {
-        private string URL = "https://platform.igc.studio/api/create";
-        private bool isUploading = false;
-
-        public void UploadCaptures(string OutputPath, string API_Key, Action<string, Texture2D> successCallback, Action<string> failureCallback)
-        {
-            if (isUploading)
-            {
-                failureCallback("Upload already in progress");
-                Debug.Log("Upload already in progress");
-                return;
-            }
-
-            List<IMultipartFormSection> form = new List<IMultipartFormSection>();
-
-            byte[] bytes = File.ReadAllBytes(OutputPath + "transforms.json");
-            form.Add(new MultipartFormDataSection("api_key", API_Key));
-            form.Add(new MultipartFormDataSection("source", "Unity"));
-            form.Add(new MultipartFormFileSection("transforms", bytes, "transforms.json", "text/json"));
-
-            if (Directory.Exists(OutputPath))
-            {
-                DirectoryInfo dir = new DirectoryInfo(OutputPath + "images/");
-                foreach (FileInfo file in dir.GetFiles("*.png"))
-                {
-                    byte[] imageBytes = File.ReadAllBytes(OutputPath + "/images/" + file.Name);
-                    form.Add(new MultipartFormFileSection("image_set[]", imageBytes, file.Name, "image/png"));
-                }
-            }
-
-            UnityWebRequest Request = UnityWebRequest.Post(URL, form);
-
-            Debug.Log("Starting Upload");
-            StartCoroutine(OnUploadResponse(Request, OutputPath, successCallback, failureCallback));
-        }
-
-
-        private IEnumerator OnUploadResponse(UnityWebRequest Request, string OutputPath, Action<string, Texture2D> successCallback, Action<string> failureCallback)
-        {
-            yield return Request.SendWebRequest();
-
-            if (Request.result == UnityWebRequest.Result.ConnectionError)
-            {
-                Debug.Log("ERROR: " + Request.error);
-                Debug.Log("RESPONSE CODE: " + Request.responseCode);
-                failureCallback("Response Code " + Request.responseCode + ". Upload Error: " + Request.error);
-            }
-            else
-            {
-                DownloadHandler output = Request.downloadHandler;
-                Debug.Log("SUCCESS " + output.text);
-                Debug.Log("RESPONSE CODE: " + Request.responseCode);
-
-                if (Request.responseCode >= 400)
-                {
-                    failureCallback("Something went wrong with the upload");
-                    Debug.LogError("Something went wrong with the upload");
-                }
-
-                Response response = JsonUtility.FromJson<Response>(output.text);
-
-                Debug.Log(response.id);
-                Debug.Log(response.order_path);
-
-                //Application.OpenURL(response.order_path); // pass the url back to the caller via event/task
-                StartCheckout(response.order_path, OutputPath, successCallback, failureCallback);
-            }
-        }
-
-        private void StartCheckout(string QRURL, string OutputPath, Action<string, Texture2D> successCallback, Action<string> failureCallback)
-        {
-            CaptureCheckout Checkout = gameObject.GetComponent<CaptureCheckout>();
-            Checkout.GetCheckoutQR(QRURL, successCallback, failureCallback, SavePath: OutputPath);
-        }
-    }
-
     [System.Serializable]
     public class Response
     {
         public string id;
         public string created_at;
         public string order_path;
+    }
+    public class CaptureUploader : MonoBehaviour
+    {
+        private string URL = "https://platform.igc.studio/api/create";
+
+        public void UploadCaptures(string outputPath, string API_Key, Action<string, Texture2D> successCallback, Action checkoutCallback, Action<string> failureCallback)
+        {
+            var form = new List<IMultipartFormSection>();
+
+            var transformsPath = Path.Combine(outputPath, "transforms.json");
+            var bytes = File.ReadAllBytes(transformsPath);
+            form.Add(new MultipartFormDataSection("api_key", API_Key));
+            form.Add(new MultipartFormDataSection("source", "Unity"));
+            form.Add(new MultipartFormFileSection("transforms", bytes, "transforms.json", "text/json"));
+
+            if (Directory.Exists(outputPath))
+            {
+                var dir = new DirectoryInfo(Path.Combine(outputPath, "images"));
+                foreach (var file in dir.GetFiles("*.png"))
+                {
+                    var imagePath = Path.Combine(outputPath, "images", file.Name);
+                    var imageBytes = File.ReadAllBytes(imagePath);
+                    form.Add(new MultipartFormFileSection("image_set[]", imageBytes, file.Name, "image/png"));
+                }
+            }
+
+            var request = UnityWebRequest.Post(URL, form);
+
+            Debug.Log("Starting Upload");
+            StartCoroutine(OnUploadResponse(request, outputPath, successCallback, checkoutCallback, failureCallback));
+        }
+
+
+        private IEnumerator OnUploadResponse(UnityWebRequest request, string outputPath, Action<string, Texture2D> successCallback, Action checkoutCallback, Action<string> failureCallback)
+        {
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.responseCode >= 400)
+            {
+                Debug.LogError($"Error during Upload: {request.error}\nResponse Code:{request.responseCode}");
+                failureCallback($"Error during Upload: {request.error}\nResponse Code:{request.responseCode}");
+            }
+            else
+            {
+                DownloadHandler output = request.downloadHandler;
+                Debug.Log($"Success: {output.text}\n\nResponse Code:{request.responseCode}");
+
+                var response = JsonUtility.FromJson<Response>(output.text);
+
+                Debug.Log($"Response Id: {response.id} Order Path: {response.order_path}");
+
+                //Application.OpenURL(response.order_path); // pass the url back to the caller via event/task
+                checkoutCallback();
+                StartCheckout(response.order_path, outputPath, successCallback, failureCallback);
+            }
+        }
+
+        private void StartCheckout(string QRURL, string outputPath, Action<string, Texture2D> successCallback, Action<string> failureCallback)
+        {
+            var checkout = gameObject.GetComponent<CaptureCheckout>();
+            checkout.GetCheckoutQR(QRURL, successCallback, failureCallback, savePath: outputPath);
+        }
     }
 }

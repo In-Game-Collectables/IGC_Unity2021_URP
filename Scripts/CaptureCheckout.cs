@@ -14,42 +14,42 @@ namespace IGC
 
         private IEnumerator checkoutCoroutine;
 
-        public void GetCheckoutQR(string CheckoutURL, Action<string, Texture2D> successCallback, Action<string> failureCallback, string SavePath = " ")
+        public void GetCheckoutQR(string checkoutURL, Action<string, Texture2D> successCallback, Action<string> failureCallback, string savePath = " ")
         {
-            checkoutCoroutine = GetQRFromAPI(CheckoutURL + "/qr", successCallback, failureCallback, SavePath: SavePath);
+            checkoutCoroutine = GetQRFromAPI(checkoutURL + "/qr", successCallback, failureCallback, savePath: savePath);
             StartCoroutine(checkoutCoroutine);
         }
 
-        private IEnumerator GetQRFromAPI(string URL, Action<string, Texture2D> successCallback, Action<string> failureCallback, string SavePath = " ")
+        private IEnumerator GetQRFromAPI(string URL, Action<string, Texture2D> successCallback, Action<string> failureCallback, string savePath = " ")
         {
             var request = UnityWebRequestTexture.GetTexture(URL);
             yield return request.SendWebRequest();
+
             if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log("ERROR: " + request.error);
-                Debug.Log("RESPONSE CODE: " + request.responseCode);
                 checkoutCoroutine = null;
-                failureCallback("Response Code " + request.responseCode + ". QR Code Error: " + request.error);
+                Debug.LogError($"Error getting QR: {request.error}\nResponse Code:{request.responseCode}");
+                failureCallback($"Error getting QR: {request.error}\nResponse Code:{request.responseCode}");
             }
             else
             {
-                Debug.Log("SUCCESS: Connected to API");
+                Debug.Log("Success: Connected to API Checkout");
                 var qrCode = new Texture2D(1, 1);
                 qrCode = DownloadHandlerTexture.GetContent(request);
                 if (qrCode == null)
                 {
-                    Debug.Log("ERROR: Image seems to be empty?");
+                    Debug.Log("Error: QR Image seems to be empty?");
                     checkoutCoroutine = null;
                     failureCallback("QR Code image seems to be empty");
                 }
                 else
                 {
                     // Optional?
-                    if (SavePath != " ")
+                    if (!string.IsNullOrEmpty(savePath))
                     {
-                        SavePath = SavePath + "Checkout_QR.png";
-                        byte[] bytes = qrCode.EncodeToPNG();
-                        File.WriteAllBytes(SavePath, bytes);
+                        savePath = savePath + "Checkout_QR.png";
+                        var bytes = qrCode.EncodeToPNG();
+                        File.WriteAllBytes(savePath, bytes);
                     }
                     checkoutCoroutine = null;
                     successCallback(URL, qrCode);

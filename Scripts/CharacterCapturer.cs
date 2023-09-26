@@ -16,6 +16,14 @@ namespace IGC
             _32 = 32
         }
 
+        public enum IGCStage
+        {
+            None,
+            Capturing,
+            Uploading,
+            CheckOut
+        }
+
         [Tooltip("API Key for the IGC Platform")]
         public string API_Key = "TEST_KEY";
 
@@ -40,8 +48,8 @@ namespace IGC
 
         [Space(10)]
 
-        [Tooltip("Should only be used if target character and lighting does not change at all between frames")]
-        public bool shouldCaptureAsynchronously = true;
+        //[Tooltip("Should only be used if target character and lighting does not change at all between frames")]
+        //public bool shouldCaptureAsynchronously = false;
 
         [Space(10)]
 
@@ -60,7 +68,6 @@ namespace IGC
         private SphericalManager Spherical;
         private CaptureUploader Uploader;
 
-
         public delegate void CaptureFinish(string message);
         public event CaptureFinish onCaptureFinish;
 
@@ -75,6 +82,8 @@ namespace IGC
         private IEnumerator uploadCouroutine;
         //private bool isUploading => uploadCouroutine != null;
 
+        [HideInInspector] public IGCStage CurrentStage = IGCStage.None;
+        
         void Awake()
         {
             Spherical = GetComponent<SphericalManager>();
@@ -83,15 +92,23 @@ namespace IGC
 
         void Start()
         {
-            if (CustomOutputPath == "")
-            {
-                OutputPath = Application.dataPath + "/../OUTPUT/Captures/";
-            }
-            else
+            if (!string.IsNullOrWhiteSpace(CustomOutputPath))
             {
                 OutputPath = CustomOutputPath;
             }
+            else
+            {
+                #if UNITY_EDITOR
 
+                OutputPath = Path.Combine(Application.dataPath, "../OUTPUT/Captures");
+
+                #else
+
+                // consider using the Application.temporaryCachePath (some OS clean this up now and again, or you can manage files in there)
+                OutputPath = Path.Combine(Application.persistentDataPath, "Captures");
+
+                #endif
+            }
             SetUpCameras();
             SetUpLayerMasks();
         }
@@ -108,16 +125,45 @@ namespace IGC
             }
             if (Keyboard.current.jKey.wasPressedThisFrame)
             {
-                CaptureThenUpload();
+                StartCaptureThenUpload(true);
             }
         }
 
         //--------------------------------------------------------
 
-
-        public void CaptureThenUpload()
+        public void StartCapture(bool asyncCapture = false)
+        // async should NOT be used if either target character and/or lighting changes or moves at all between frames
         {
-            if (shouldCaptureAsynchronously)
+            if (target == null)
+            {
+                Debug.LogWarning("No target found! Could not start Captures");
+            }
+            else
+            {
+                DeleteCaptures(OutputPath);
+                if (asyncCapture)
+                {
+                    if (captureCoroutine != null)
+                    {
+                        Debug.Log("Capture is already in progress");
+                    }
+                    else
+                    {
+                        captureCoroutine = CaptureCoroutine();
+                        StartCoroutine(captureCoroutine);
+                    }
+                }
+                else
+                {
+                    Capture();
+                }
+            }
+        }
+
+        public void StartCaptureThenUpload(bool asyncCapture = false)
+        // async should NOT be used if either target character and/or lighting changes or moves at all between frames
+        {
+            if (asyncCapture)
             {
                 if (captureCoroutine == null && uploadCouroutine == null)
                 {
@@ -130,46 +176,34 @@ namespace IGC
             }
             else
             {
-                Capture();
+                StartCapture();
                 UploadCaptures();
             }
-        }
 
-        public IEnumerator CaptureThenUploadCoroutine()
-        {
-            yield return CaptureCoroutine();
-            yield return UploadCapturesCoroutine();
-        }
-
-        public void StartCapture()
-        {
-            if (target == null)
+            IEnumerator CaptureThenUploadCoroutine()
             {
-                Debug.LogWarning("No target found! Could not start Captures");
-                return;
-            }
+                captureCoroutine = CaptureCoroutine();
+                yield return CaptureCoroutine();
+                captureCoroutine = null;
 
-            DeleteCaptures(OutputPath);
-
-            if (shouldCaptureAsynchronously)
-            {
-                CaptureAsynchronously();
-            }
-            else
-            {
-                Capture();
+                uploadCouroutine = UploadCapturesCoroutine();
+                yield return UploadCapturesCoroutine();
+                uploadCouroutine = null;
             }
         }
 
-        public void Capture()
+
+        //--------------------------------------------------------
+
+        private void Capture()
         {
             Debug.Log("Capture Starting");
-            Vector3 center = target.transform.position + new Vector3(0, HeightOffset, 0);
+            CurrentStage = IGCStage.Capturing;
+            var CI = CreateCaptureInformation();
 
-            CaptureInformation CI = CreateCaptureInformation();
             for (int i = 0; i < Frames; i++)
             {
-                center = target.transform.position + new Vector3(0, HeightOffset, 0);
+                Vector3 center = target.transform.position + new Vector3(0, HeightOffset, 0);
                 transform.position = Spherical.GetSpiralLocation(CaptureRadius, Frames, i, xSpeed, center, target.transform.forward, phiMin: 0.01f, phiMax: 0.99f);
                 // if phi = 0, camera doesn't point to target properly
 
@@ -181,23 +215,21 @@ namespace IGC
                 CI = AddToCaptureInformation(i, CI, center, transform: transform, filePath: filePath);
             }
             SaveInformationToJson(CI);
+            CurrentStage = IGCStage.None;
+            CaptureFinished("Capture finished");
             Debug.Log("Capture Finished");
         }
 
-        public void CaptureAsynchronously()
-        {
-            captureCoroutine = CaptureCoroutine();
-            StartCoroutine(captureCoroutine);
-        }
 
         private IEnumerator CaptureCoroutine()
         {
-            Debug.Log("IGC Capture starting");
-            var center = target.transform.position + new Vector3(0, HeightOffset, 0);
+            Debug.Log("Capture starting");
+            CurrentStage = IGCStage.Capturing;
             var CI = CreateCaptureInformation();
+
             for (int i = 0; i < Frames; i++)
             {
-                center = target.transform.position + new Vector3(0, HeightOffset, 0);
+                Vector3 center = target.transform.position + new Vector3(0, HeightOffset, 0);
                 transform.position = Spherical.GetSpiralLocation(CaptureRadius, Frames, i, xSpeed, center, target.transform.forward, phiMin: 0.01f, phiMax: 0.99f);
                 // if phi = 0, camera doesn't point to target properly
 
@@ -213,18 +245,18 @@ namespace IGC
             }
             SaveInformationToJson(CI);
             CaptureFinished("Capture finished");
-            Debug.Log("IGC Capture finished");
-
-            void CaptureFinished(string message)
-            {
-                captureCoroutine = null;
-                if (onCaptureFinish != null)
-                {
-                    onCaptureFinish(message);
-                }
-            }
+            Debug.Log("Capture finished");
         }
 
+        private void CaptureFinished(string message)
+        {
+            CurrentStage = IGCStage.None;
+            captureCoroutine = null;
+            if (onCaptureFinish != null)
+            {
+                onCaptureFinish(message);
+            }
+        }
 
         //-------------------------------------------------------
 
@@ -237,15 +269,17 @@ namespace IGC
             }
             else
             {
+                CurrentStage = IGCStage.Uploading;
                 uploadCouroutine = UploadCapturesCoroutine();
                 StartCoroutine(uploadCouroutine);
             }
         }
 
+
         private IEnumerator UploadCapturesCoroutine()
         {
             bool isUploadFinished = false;
-            Uploader.UploadCaptures(OutputPath, API_Key, UploadSucceeded, UploadFailed);
+            Uploader.UploadCaptures(OutputPath, API_Key, UploadSucceeded, CheckoutStarted, UploadFailed);
 
             while (true)
             {
@@ -257,6 +291,7 @@ namespace IGC
             {
                 uploadCouroutine = null;
                 isUploadFinished = true;
+                CurrentStage = IGCStage.None;
                 Debug.Log("Upload succeeded");
                 if (onUploadSuccess != null)
                 {
@@ -264,12 +299,17 @@ namespace IGC
                 }
             }
 
+            void CheckoutStarted()
+            {
+                CurrentStage = IGCStage.CheckOut;
+            }
+
             void UploadFailed(string errorMessage)
             {
                 uploadCouroutine = null;
                 isUploadFinished = true;
-                Debug.Log("Upload failed");
-                Debug.Log(errorMessage);
+                Debug.Log($"Upload failed: {errorMessage}");
+                CurrentStage = IGCStage.None;
                 if (onUploadError != null)
                 {
                     onUploadError(errorMessage);
@@ -277,8 +317,8 @@ namespace IGC
             }
         }
 
-
         //--------------------------------------------------------
+
 
         private void SetUpLayerMasks()
         {
@@ -303,7 +343,6 @@ namespace IGC
             // cameras are manually rendered, disable them to stop rendering every frame
             Camera.enabled = false;
             MaskCamera.enabled = false;
-
             // depth of 0 can throw errors depending on other parts of the URP pipeline
             Camera.targetTexture = new RenderTexture(Dimension, Dimension, (int)depthFormat, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
             MaskCamera.targetTexture = new RenderTexture(Dimension, Dimension, (int)depthFormat, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
@@ -328,7 +367,6 @@ namespace IGC
 
                 // avoid leak, you must manually release/destroy a rendertexture if you create them
                 // or use a temporary one that Unity will pool and cleanup
-                //RenderTexture RT = new RenderTexture(Dimension, Dimension, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
                 var RT = RenderTexture.GetTemporary(Dimension, Dimension, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
 
                 Graphics.Blit(MaskerMat.mainTexture, RT, MaskerMat, 0); // convert material to render texture
@@ -350,12 +388,13 @@ namespace IGC
             Destroy(RGBImage);
             Destroy(Output);
 
-            string filePath = OutputPath + "/images/";
+            string filePath = Path.Combine(OutputPath, "images");
             if (!Directory.Exists(filePath))
             {
                 Directory.CreateDirectory(filePath);
             }
-            File.WriteAllBytes(filePath + filename, bytes);
+            var imagePath = Path.Combine(filePath, filename);
+            File.WriteAllBytes(imagePath, bytes);
         }
 
         private Texture2D GetCameraImage(Camera camera)
@@ -384,7 +423,7 @@ namespace IGC
         private CaptureInformation AddToCaptureInformation(int index, CaptureInformation CI, Vector3 center, string filePath = "", float sharpness = 50, Transform transform = null)
         {
             Transform transf = transform;
-            // transform to make compatible with ngp
+            // transform to make compatible with api
             transf.position = ((transform.position - center) * -1) * ScaleMult;
             transf.RotateAround(new Vector3(), new Vector3(0, 1, 0), 180);
             transf.RotateAround(new Vector3(), new Vector3(1, 0, 0), 270);
@@ -402,22 +441,25 @@ namespace IGC
 
             return CI;
         }
-
         private void SaveInformationToJson(CaptureInformation CI)
         {
             string output = JsonUtility.ToJson(CI, true);
-            System.IO.File.WriteAllText(OutputPath + "/transforms.json", output);
+            var outputPath = Path.Combine(OutputPath, "transforms.json");
+            System.IO.File.WriteAllText(outputPath, output);
         }
 
-        private void DeleteCaptures(string Path)
-        {
-            if (Directory.Exists(Path + "/images/"))
-                Directory.Delete(Path + "/images/", true);
+        //--------------------------------------------------------
 
-            if (File.Exists(Path + "/transforms.json"))
-                File.Delete(Path + "/transforms.json");
+        private void DeleteCaptures(string path)
+        {
+            var imageFolder = Path.Combine(path, "images");
+            if (Directory.Exists(imageFolder))
+                Directory.Delete(imageFolder, true);
+
+            var transformsPath = Path.Combine(path, "transforms.json");
+            if (File.Exists(transformsPath))
+                File.Delete(transformsPath);
         }
     }
 }
 
-//--------------------------------------------------------
