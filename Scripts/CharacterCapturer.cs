@@ -25,7 +25,7 @@ namespace IGC
         }
 
         [Tooltip("API Key for the IGC Platform")]
-        public string API_Key = "TEST_KEY";
+        public string API_Key = "";
 
         [Space(10)]
 
@@ -53,8 +53,6 @@ namespace IGC
 
         [Space(10)]
 
-        [Tooltip("Add Y-axis offset to where the camera is looking on the target")]
-        public float HeightOffset = 0.85f; // ~half the height of the unity pawn
         private float ScaleMult = 1.5f;
 
         [Tooltip("Layers that will show up for the camera")]
@@ -83,7 +81,26 @@ namespace IGC
         //private bool isUploading => uploadCouroutine != null;
 
         [HideInInspector] public IGCStage CurrentStage = IGCStage.None;
-        
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.white;
+            if (!Spherical)
+            {
+                Spherical = GetComponent<SphericalManager>();
+            }
+
+            for (int i = 0; i < Frames - 1; i++)
+            {
+                Vector3 center = transform.position;
+                var pos = Spherical.GetSpiralLocation(CaptureRadius, Frames, i, xSpeed, center, transform.forward, phiMin: 0.01f, phiMax: 0.99f);
+                var pos2 = Spherical.GetSpiralLocation(CaptureRadius, Frames, i+1, xSpeed, center, transform.forward, phiMin: 0.01f, phiMax: 0.99f);
+
+                Gizmos.DrawLine(pos, pos2);
+                
+            }
+        }
+
         void Awake()
         {
             Spherical = GetComponent<SphericalManager>();
@@ -203,16 +220,19 @@ namespace IGC
 
             for (int i = 0; i < Frames; i++)
             {
-                Vector3 center = target.transform.position + new Vector3(0, HeightOffset, 0);
-                transform.position = Spherical.GetSpiralLocation(CaptureRadius, Frames, i, xSpeed, center, target.transform.forward, phiMin: 0.01f, phiMax: 0.99f);
+                Vector3 center = transform.position;
+                Vector3 position = Spherical.GetSpiralLocation(CaptureRadius, Frames, i, xSpeed, center, transform.forward, phiMin: 0.01f, phiMax: 0.99f);
                 // if phi = 0, camera doesn't point to target properly
+                Camera.transform.position = position;
+                MaskCamera.transform.position = position;
+                Camera.transform.LookAt(center);
+                MaskCamera.transform.LookAt(center);
 
-                transform.LookAt(center);
                 string fileName = new string('0', 3 - i.ToString().Length) + i + ".png";
                 string filePath = "./images/" + fileName;
                 SaveRender(fileName);
 
-                CI = AddToCaptureInformation(i, CI, center, transform: transform, filePath: filePath);
+                CI = AddToCaptureInformation(i, CI, center, transform: Camera.transform, filePath: filePath);
             }
             SaveInformationToJson(CI);
             CurrentStage = IGCStage.None;
@@ -229,16 +249,19 @@ namespace IGC
 
             for (int i = 0; i < Frames; i++)
             {
-                Vector3 center = target.transform.position + new Vector3(0, HeightOffset, 0);
-                transform.position = Spherical.GetSpiralLocation(CaptureRadius, Frames, i, xSpeed, center, target.transform.forward, phiMin: 0.01f, phiMax: 0.99f);
+                Vector3 center = transform.position;
+                Vector3 position = Spherical.GetSpiralLocation(CaptureRadius, Frames, i, xSpeed, center, transform.forward, phiMin: 0.01f, phiMax: 0.99f);
                 // if phi = 0, camera doesn't point to target properly
+                Camera.transform.position = position;
+                MaskCamera.transform.position = position;
+                Camera.transform.LookAt(center);
+                MaskCamera.transform.LookAt(center);
 
-                transform.LookAt(center);
                 string fileName = new string('0', 3 - i.ToString().Length) + i + ".png";
                 string filePath = "./images/" + fileName;
                 SaveRender(fileName);
 
-                CI = AddToCaptureInformation(i, CI, center, transform: transform, filePath: filePath);
+                CI = AddToCaptureInformation(i, CI, center, transform: Camera.transform, filePath: filePath);
 
                 // wait until next frame...
                 yield return null;
@@ -265,7 +288,11 @@ namespace IGC
         {
             if (uploadCouroutine != null)
             {
-                Debug.Log("Upload is already in progress");
+                Debug.Log("Error: Upload is already in progress");
+            }
+            else if(API_Key == "")
+            {
+                Debug.Log("Error: API_Key is empty. Cannot Upload");
             }
             else
             {
