@@ -51,16 +51,21 @@ This plugin will capture renders spun around a character and export out a JSON f
 <br />
 
 ## Best Practices
+### Settings
 * At least 100 frames at 1024x1024 should be uploaded for best quality.
-* The character should take up as much space possible within the renders without cutting anything off.
+### Mesh
+* The character mesh should take up as much space possible within the renders without cutting anything off.
 * The mesh should not have any floating pieces.
-* Having an evenly lit character will give the best results. Any shadows on the mesh will be baked into the final model.
+* Meshes should not have their backfaces missing if visible to the camera.
+### Lighting & Materials
+* Having an evenly lit character will give the best results. Any shadows or lighting on the mesh will be baked into the final model.
 * Pure unlit shaders are not recommended. The meshing process needs shading to figure out the depth of points within a model.
 * Recommended:
+    * Lit shaders with ambient lighting
     * Lit shaders with fixed lights evenly around character
     * Unlit shaders with strong ambient occlusion
 * Materials with high roughness and little specular are recommended.
-* Highly specular and highly metallic materials will create artifacts within the final model.
+    * Highly specular and highly metallic materials will create artifacts within the final model.
 * Lighting is even more important on simple, stylized characters, as any shadows baked on are a lot more noticeable on simple characters rather than detailed characters.
 
 <p align="center">

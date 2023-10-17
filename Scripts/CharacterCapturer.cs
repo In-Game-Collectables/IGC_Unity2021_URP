@@ -29,19 +29,15 @@ namespace IGC
 
         [Space(10)]
 
-
         private Camera Camera;
         private Camera MaskCamera;
-
 
         [Header("Capture Parameters")]
         public float CaptureRadius = 5;
         public float FOV = 45;
         public int Frames = 100;
-        [Range(0, 10)]
-        private float xSpeed = 5.17f;
+        private float xSpeed = 7.57f;
         public int Dimension = 1024;
-
 
         [Space(10)]
 
@@ -91,11 +87,10 @@ namespace IGC
             for (int i = 0; i < Frames - 1; i++)
             {
                 Vector3 center = transform.position;
-                var pos = Spherical.GetSpiralLocation(CaptureRadius, Frames, i, xSpeed, center, transform.forward, phiMin: 0.01f, phiMax: 0.99f);
-                var pos2 = Spherical.GetSpiralLocation(CaptureRadius, Frames, i+1, xSpeed, center, transform.forward, phiMin: 0.01f, phiMax: 0.99f);
+                Vector3 point1 = Spherical.GetSpiralLocation(CaptureRadius, Frames, i, xSpeed, center, transform.forward, phiMin: 0.01f, phiMax: 0.99f);
+                Vector3 point2 = Spherical.GetSpiralLocation(CaptureRadius, Frames, i + 1, xSpeed, center, transform.forward, phiMin: 0.01f, phiMax: 0.99f);
 
-                Gizmos.DrawLine(pos, pos2);
-                
+                Gizmos.DrawLine(point1, point2);
             }
         }
 
