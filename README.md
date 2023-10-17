@@ -67,7 +67,7 @@ The variable *CurrentStage* on the *Capturer* can be used to see if it is curren
     * Unlit shaders with strong ambient occlusion
 * Materials with high roughness and little specular are recommended.
     * Highly specular and highly metallic materials will create artifacts within the final model.
-* Lighting is even more important on simple, stylized characters, as any shadows baked on are a lot more noticeable on simple characters rather than detailed characters.
+* Lighting is even more important on simple, stylized characters, as any shadows baked on are a lot more noticeable.
 
 <p align="center">
 <img src="https://github.com/In-Game-Collectables/IGC_UE4/assets/35625367/7e9cc2ff-6b6d-4bad-ad04-623516f5c90f" width="512" height="256">
