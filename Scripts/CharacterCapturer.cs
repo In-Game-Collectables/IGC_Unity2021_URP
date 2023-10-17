@@ -29,14 +29,10 @@ namespace IGC
 
         [Space(10)]
 
-        [Tooltip("GameObject that the camera will capture")]
-        public GameObject target;
-        public Material MaskerMat;
 
         private Camera Camera;
         private Camera MaskCamera;
 
-        [SerializeField] private DepthFormat depthFormat;
 
         [Header("Capture Parameters")]
         public float CaptureRadius = 5;
@@ -44,12 +40,8 @@ namespace IGC
         public int Frames = 100;
         [Range(0, 10)]
         private float xSpeed = 5.17f;
-        public int Dimension = 2048;
+        public int Dimension = 1024;
 
-        [Space(10)]
-
-        //[Tooltip("Should only be used if target character and lighting does not change at all between frames")]
-        //public bool shouldCaptureAsynchronously = false;
 
         [Space(10)]
 
@@ -62,6 +54,12 @@ namespace IGC
         private string OutputPath;
         [Tooltip("If empty, will render to OUTPUT folder above Asset folder")]
         public string CustomOutputPath;
+
+        [Space(10)]
+        [Header("Others")]
+
+        public Material MaskerMat;
+        [SerializeField] private DepthFormat depthFormat;
 
         private SphericalManager Spherical;
         private CaptureUploader Uploader;
@@ -151,29 +149,22 @@ namespace IGC
         public void StartCapture(bool asyncCapture = false)
         // async should NOT be used if either target character and/or lighting changes or moves at all between frames
         {
-            if (target == null)
+            DeleteCaptures(OutputPath);
+            if (asyncCapture)
             {
-                Debug.LogWarning("No target found! Could not start Captures");
-            }
-            else
-            {
-                DeleteCaptures(OutputPath);
-                if (asyncCapture)
+                if (captureCoroutine != null)
                 {
-                    if (captureCoroutine != null)
-                    {
-                        Debug.Log("Capture is already in progress");
-                    }
-                    else
-                    {
-                        captureCoroutine = CaptureCoroutine();
-                        StartCoroutine(captureCoroutine);
-                    }
+                    Debug.Log("Capture is already in progress");
                 }
                 else
                 {
-                    Capture();
+                    captureCoroutine = CaptureCoroutine();
+                    StartCoroutine(captureCoroutine);
                 }
+            }
+            else
+            {
+                Capture();
             }
         }
 

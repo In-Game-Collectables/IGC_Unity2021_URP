@@ -3,22 +3,22 @@ This document is currently a work in progress.
 
 Built on Unity version 2021.3.28f1. Works with URP
 
-This plugin will capture renders spun around a target object and export out a JSON file of the relative camera transforms. It will upload the necessary files to the IGC API to process to re-create a printable mesh.
+This plugin will capture renders spun around a character and export out a JSON file of the relative camera transforms. It will upload the necessary files to the IGC API to process to re-create a printable mesh.
 
 ## How to use
 ### Step 1: Set Up
 * Get your API Key from the [IGC Platform](https://platform.igc.studio/collectables)
-* Place *Capturer* Prefab within Scene and add the object to capture to the Target parameter within the _CharacterCapture.cs_ Script
+* Place *Capturer* Prefab within Scene
 * Input your API Key in the *Capturer*'s API_Key parameter
-* Adjust the Height Offset within the prefab to point to the center of Target character
+* Position *Capturer* at the center of character to be captured
 * Adjust _Capture Radius_ to fit whole character within renders
-* Add all Layers the target is shown on to *Shown Layers*. Hide any other objects in the same layers during capture, or else they can also appear in the final model.
+* Add all Layers the character is shown on to *Shown Layers*. Hide any other objects in the same layers during capture, or else they can also appear in the final model.
 * Read the [Best Practices](https://github.com/In-Game-Collectables/IGC_Unity2021#best-practices) section for the ideal set up
 ### Step 2: Capturing
 * Use function *StartCapture()* within *CharacterCapture.cs* Script to export out all renders/files.
     * The function has an optional parameter *asyncCapture* that determines if there should be a delay between captures
         * If *asyncCapture* is false, it may freeze the game up to a couple seconds depending on the dimensions of the renders
-        * *asyncCapture* should NOT be used if the Target character or lighting can animate/change between frames
+        * *asyncCapture* should NOT be used if the character or lighting can animate/change between frames
 * The event *onCaptureFinish* will be called when Capturing is finished
 * Renders/files will be outputed to *PROJECT_NAME/OUTPUT/Captures/* by default
 * The event *StartCaptureAndUpload()* can be used to combine the steps for Capturing and Uploading
@@ -34,18 +34,14 @@ This plugin will capture renders spun around a target object and export out a JS
 #### Parameters
 * Character Capture > API_Key
     *  API Key for the IGC Platform
-* Character Capture > Target
-    * The focus of the Capturer. Will move cameras to spin around the origin of the Target
 * Character Capture > Capture Radius
-    * Size of radius that spins around the Target object
+    * Size of radius of the camera
 * Character Capture > FOV
     * Field of View for both cameras
 * Character Capture > Frames
     * Number of images to be rendered out
 * Character Capture > Dimension
     * Dimension of both sides of image
-* Character Capture > Height Offset
-    * Offsets the y-axis of the focal point of the capture. (TODO: find focal point based on mesh)
 * Character Capture > Shown Layers
     * The layers that the character meshes should live on. Used for masking out character from the background. If empty, will default to rendering everything
 
@@ -55,7 +51,7 @@ This plugin will capture renders spun around a target object and export out a JS
 <br />
 
 ## Best Practices
-* At least 100 frames at 2048x2048 should be uploaded for best quality.
+* At least 100 frames at 1024x1024 should be uploaded for best quality.
 * The character should take up as much space possible within the renders without cutting anything off.
 * The mesh should not have any floating pieces.
 * Having an evenly lit character will give the best results. Any shadows on the mesh will be baked into the final model.
