@@ -8,9 +8,8 @@ This plugin will capture renders spun around a character and export out a JSON f
 ## How to use
 ### Step 1: Set Up
 * Get your API Key from the [IGC Platform](https://platform.igc.studio/collectables)
-* Place *Capturer* Prefab within Scene
+* Place *Capturer* Prefab within Scene, positioned at the center of the character to be captured
 * Input your API Key in the *Capturer*'s API_Key parameter
-* Position *Capturer* at the center of character to be captured
 * Adjust _Capture Radius_ to fit whole character within renders
 * Add all Layers the character is shown on to *Shown Layers*. Hide any other objects in the same layers during capture, or else they can also appear in the final model.
 * Read the [Best Practices](https://github.com/In-Game-Collectables/IGC_Unity2021#best-practices) section for the ideal set up
@@ -44,9 +43,11 @@ This plugin will capture renders spun around a character and export out a JSON f
     * Dimension of both sides of image
 * Character Capture > Shown Layers
     * The layers that the character meshes should live on. Used for masking out character from the background. If empty, will default to rendering everything
+    
+<br />
 
 ## Notes
-* The variable *CurrentStage* on the *Capturer* can be used to see if it is currently Capturing, Uploading, CheckingOut, or not doing anything.
+The variable *CurrentStage* on the *Capturer* can be used to see if it is currently Capturing, Uploading, CheckingOut, or not doing anything.
 
 <br />
 
@@ -56,7 +57,7 @@ This plugin will capture renders spun around a character and export out a JSON f
 ### Mesh
 * The character mesh should take up as much space possible within the renders without cutting anything off.
 * The mesh should not have any floating pieces.
-* Meshes should not have their backfaces missing if visible to the camera.
+* Meshes should not have their backfaces missing.
 ### Lighting & Materials
 * Having an evenly lit character will give the best results. Any shadows or lighting on the mesh will be baked into the final model.
 * Pure unlit shaders are not recommended. The meshing process needs shading to figure out the depth of points within a model.
