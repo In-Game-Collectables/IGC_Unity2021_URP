@@ -66,11 +66,11 @@ This plugin will capture renders spun around a target object and export out a JS
 * Materials with high roughness and little specular are recommended.
 * Highly specular and highly metallic materials will create artifacts within the final model.
 * Lighting is even more important on simple, stylized characters, as any shadows baked on are a lot more noticeable on simple characters rather than detailed characters.
-
+  
 <p align="center">
-<img src="https://github.com/In-Game-Collectables/IGC_UE4/assets/35625367/7e9cc2ff-6b6d-4bad-ad04-623516f5c90f" width="512" height="256">
-<img src="https://github.com/In-Game-Collectables/IGC_UE4/assets/35625367/c0c76996-15bb-43bb-b677-d2165eb56a15" width="512" height="256">
- <p align="center">Directional Lighting vs. Evenly Shaded</p>
+<img src="https://github.com/In-Game-Collectables/IGC_Unity2021/assets/35625367/efab12b6-946e-4895-bd84-4a9d530ff68a" width="512" height="256">
+<img src="https://github.com/In-Game-Collectables/IGC_Unity2021/assets/35625367/84cd22ed-6767-4901-9bfd-4b7bb670a4d6" width="512" height="256">
+ <p align="center">Not Ideal vs. Ideal Lighting</p>
 </p>
 
 ### Ideal Lighting Examples
