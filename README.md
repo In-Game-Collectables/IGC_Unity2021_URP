@@ -1,7 +1,7 @@
 # IGC Unity
 This document is currently a work in progress.
 
-Built on Unity version 2021.3.28f1. Works with URP
+[In Game Collectables](https://www.igc.studio/) Plugin built on Unity version 2021.3.28f1. Works with URP
 
 This plugin will capture renders spun around a character and export out a JSON file of the relative camera transforms. It will upload the necessary files to the IGC API to process to re-create a printable mesh.
 
@@ -91,3 +91,8 @@ The variable *CurrentStage* on the *Capturer* can be used to see if it is curren
 [Robot](https://sketchfab.com/3d-models/robot-4-b0c5f2f5ac04402dad029d6516d706b9)
 
 [Mushroom](https://sketchfab.com/3d-models/cuute-mushroom-ffc370ddc6d542d590b9f503d0892ce0)
+
+<br />
+
+## Support
+Join the [Discord](https://discord.gg/JP2fEh4cNP) for any questions, feedback or even just a chat!
