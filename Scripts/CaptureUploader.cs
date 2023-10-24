@@ -18,7 +18,7 @@ namespace IGC
     {
         private string URL = "https://platform.igc.studio/api/create";
 
-        public void UploadCaptures(string outputPath, string API_Key, Action<string, Texture2D> successCallback, Action checkoutCallback, Action<string> failureCallback)
+        public void UploadCaptures(string outputPath, string API_Key, Action<string, Texture2D> successCallback, Action checkoutCallback, Action<string> failureCallback, string API_Scale="", string API_Notes="")
         {
             var form = new List<IMultipartFormSection>();
 
@@ -37,6 +37,15 @@ namespace IGC
                     var imageBytes = File.ReadAllBytes(imagePath);
                     form.Add(new MultipartFormFileSection("image_set[]", imageBytes, file.Name, "image/png"));
                 }
+            }
+
+            if (API_Scale != "")
+            {
+                form.Add(new MultipartFormDataSection("api_param_scale", API_Scale));
+            }
+            if (API_Notes != "")
+            {
+                form.Add(new MultipartFormDataSection("notes", API_Notes));
             }
 
             var request = UnityWebRequest.Post(URL, form);
