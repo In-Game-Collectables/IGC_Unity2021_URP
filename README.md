@@ -59,6 +59,7 @@ The variable *CurrentStage* on the *Capturer* can be used to see if it is curren
 * The mesh should not have any floating pieces.
 * Meshes should not have their backfaces missing.
 ### Lighting & Materials
+* Transparent materials may create artifacts within the final model so it is best not to use them if possible.
 * Having an evenly lit character will give the best results. Any shadows or lighting on the mesh will be baked into the final model.
 * Pure unlit shaders are not recommended. The meshing process needs shading to figure out the depth of points within a model.
 * Recommended:
