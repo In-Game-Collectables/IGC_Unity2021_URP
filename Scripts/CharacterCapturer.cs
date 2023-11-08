@@ -34,17 +34,21 @@ namespace IGC
         private Camera MaskCamera;
 
         [Header("Capture Parameters")]
+        [Tooltip("Radius of the camera's path around target")]
         public float CaptureRadius = 5;
+        [Tooltip("Field of view of capture cameras")]
         public float FOV = 45;
+        [Tooltip("Number of images to be rendered out")]
         public int Frames = 100;
         private float xSpeed = 7.57f;
+        [Tooltip("Width and height of rendered images")]
         public int Dimension = 1024;
 
         [Space(10)]
 
         private float ScaleMult = 1.5f;
 
-        [Tooltip("Layers that will show up for the camera")]
+        [Tooltip("Layers that will show up within the capture camera. If empty, will default to rendering everything.")]
         public string[] ShownLayers;
 
         private int aabb = 64;
@@ -78,8 +82,11 @@ namespace IGC
         [HideInInspector] public IGCStage CurrentStage = IGCStage.None;
 
         [Header("Render Parameters")]
+        [Tooltip("Brightness multiplier for rendered images")]
         public float Brightness = 1.0f;
+        [Tooltip("Contrast amount for rendered images")]
         public float Contrast = 1.0f;
+        [Tooltip("Saturation amount for rendered images")]
         public float Saturation = 1.0f;
 
         private void OnDrawGizmos()
