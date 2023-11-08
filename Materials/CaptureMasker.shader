@@ -1,9 +1,12 @@
-Shader "IGC/CaptureMasker"
+Shader"IGC/CaptureMasker"
 {
     Properties
     {
-        _RGB("RGB", 2D) = "white" {}
+        _RGB ("RGB", 2D) = "white" {}
         _Mask ("Mask", 2D) = "white" {}
+        _Brightness ("Brightness", Float) = 1.0
+        _Contrast("Contrast", Float) = 1.0
+        _Saturation("Saturation", Float) = 1.0
     }
     SubShader
     {
@@ -36,6 +39,9 @@ Shader "IGC/CaptureMasker"
             sampler2D _RGB;
             sampler2D _Mask;
             float4 _RGB_ST;
+            float _Brightness;
+            float _Contrast;
+            float _Saturation;
 
             v2f vert (appdata v)
             {
@@ -50,13 +56,20 @@ Shader "IGC/CaptureMasker"
             {
                 // sample the texture
                 fixed4 col = tex2D(_RGB, i.uv);
-                fixed a = tex2D(_Mask, i.uv).a;
+                fixed alpha = tex2D(_Mask, i.uv).a;
+                fixed b = _Brightness;
+                fixed c = _Contrast;
+                fixed s = _Saturation;
 
-                fixed4 output = col * fixed4(1, 1, 1, a);
+                fixed4 output = col * b;
+                output = fixed4(saturate(lerp(half3(0.5, 0.5, 0.5), output, c)), alpha);
+    
+                float greyscale = output.x * 0.21 + output.y * 0.72 * output.z * 0.07; // luminosity level
+                output = lerp(fixed4(greyscale, greyscale, greyscale, alpha), output, s);
                 // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, output);
+                //UNITY_APPLY_FOG(i.fogCoord, output);
                 return output;
-            }
+}
             ENDCG
         }
     }

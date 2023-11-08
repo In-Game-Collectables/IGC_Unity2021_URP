@@ -77,6 +77,11 @@ namespace IGC
 
         [HideInInspector] public IGCStage CurrentStage = IGCStage.None;
 
+        [Header("Render Parameters")]
+        public float Brightness = 1.0f;
+        public float Contrast = 1.0f;
+        public float Saturation = 1.0f;
+
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.white;
@@ -372,6 +377,10 @@ namespace IGC
         private void SaveRender(string filename)
         // gets camera render textures and exports to png
         {
+            MaskerMat.SetFloat("_Brightness", Brightness);
+            MaskerMat.SetFloat("_Contrast", Contrast);
+            MaskerMat.SetFloat("_Saturation", Saturation);
+
             Texture2D RGBImage = GetCameraImage(Camera);
             MaskerMat.SetTexture("_RGB", RGBImage);
             Texture2D Output;
