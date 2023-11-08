@@ -5,6 +5,8 @@ This document is currently a work in progress.
 
 This plugin will capture renders spun around a character and export out a JSON file of the relative camera transforms. It will upload the necessary files to the IGC API to process to re-create a printable mesh.
 
+<br />
+
 ## How to use
 ### Step 1: Set Up
 * Get your API Key from the [IGC Platform](https://platform.igc.studio/collectables)
@@ -27,27 +29,6 @@ This plugin will capture renders spun around a character and export out a JSON f
     * The event *onUploadFailed* will be called and give a string description on why the Upload has failed
 ### Step 4: Checkout
 * After the upload is done, *onUploadSuccess* will be given a URL to the checkout page and a QR Code texture leading to the same page
-
-<br />
-
-#### Parameters
-* Character Capture > API_Key
-    *  API Key for the IGC Platform
-* Character Capture > Capture Radius
-    * Size of radius of the camera
-* Character Capture > FOV
-    * Field of View for both cameras
-* Character Capture > Frames
-    * Number of images to be rendered out
-* Character Capture > Dimension
-    * Dimension of both sides of image
-* Character Capture > Shown Layers
-    * The layers that the character meshes should live on. Used for masking out character from the background. If empty, will default to rendering everything
-    
-<br />
-
-## Notes
-The variable *CurrentStage* on the *Capturer* can be used to see if it is currently Capturing, Uploading, CheckingOut, or not doing anything.
 
 <br />
 
@@ -95,5 +76,10 @@ The variable *CurrentStage* on the *Capturer* can be used to see if it is curren
 
 <br />
 
+## Notes
+The variable *CurrentStage* on the *Capturer* can be used to see if it is currently Capturing, Uploading, CheckingOut, or not doing anything.
+
+<br />
+
 ## Support
-Join the [Discord](https://discord.gg/JP2fEh4cNP) for any questions, feedback or even just a chat!
+Join the [Discord](https://discord.gg/JP2fEh4cNP) for any questions, feedback or even just a chat! (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧
