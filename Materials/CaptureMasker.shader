@@ -60,12 +60,20 @@ Shader"IGC/CaptureMasker"
                 fixed b = _Brightness;
                 fixed c = _Contrast;
                 fixed s = _Saturation;
-
-                fixed4 output = col * b;
-                output = fixed4(saturate(lerp(half3(0.5, 0.5, 0.5), output, c)), alpha);
     
-                float greyscale = output.x * 0.21 + output.y * 0.72 * output.z * 0.07; // luminosity level
-                output = lerp(fixed4(greyscale, greyscale, greyscale, alpha), output, s);
+                fixed4 output = col * b;
+    
+                if (alpha > 0.5)
+                {
+                    output = fixed4(saturate(lerp(half3(0.5, 0.5, 0.5), output, c)), 1);
+                    float greyscale = output.x * 0.21 + output.y * 0.72 * output.z * 0.07; // luminosity level
+                    output = lerp(fixed4(greyscale, greyscale, greyscale, alpha), output, s);
+                }
+                else
+                {
+                    output = fixed4(0,0,0,0);
+                }
+
                 // apply fog
                 //UNITY_APPLY_FOG(i.fogCoord, output);
                 return output;
