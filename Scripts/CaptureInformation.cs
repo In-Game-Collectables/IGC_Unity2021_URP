@@ -21,7 +21,8 @@ namespace IGC
         public float w;
         public float h;
         public int aabb_scale;
-        public FrameInformation[] frames;
+        //public FrameInformation[] frames;
+        public List<FrameInformation> frames;
 
         public CaptureInformation(float camera_angle_x, float camera_angle_y, float fl_x, float fl_y, float w, float h, int aabb_scale, int frameCount)
         {
@@ -34,12 +35,14 @@ namespace IGC
             this.aabb_scale = aabb_scale;
             cx = w / 2;
             cy = h / 2;
-            frames = new FrameInformation[frameCount];
+            //frames = new FrameInformation[frameCount];
+            frames = new List<FrameInformation>();
         }
 
         public void AddFrameInformation(int index, FrameInformation fi)
         {
-            frames[index] = fi;
+            //frames[index] = fi;
+            frames.Add(fi);
         }
     }
 

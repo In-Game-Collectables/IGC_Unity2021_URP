@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -89,6 +90,8 @@ namespace IGC
         [Tooltip("Saturation amount for rendered images")]
         public float Saturation = 1.0f;
 
+        public GameObject[] ExtraCaptures;
+
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.white;
@@ -140,7 +143,7 @@ namespace IGC
         {
             if (Keyboard.current.kKey.wasPressedThisFrame)
             {
-                StartCapture();
+                StartCapture(true);
             }
             if (Keyboard.current.lKey.wasPressedThisFrame)
             {
@@ -211,6 +214,11 @@ namespace IGC
 
         //--------------------------------------------------------
 
+        private void GetAllExtraCaptures()
+        {
+            //FindObjectsOfTypeAll();
+        }
+
         private void Capture()
         {
             Debug.Log("Capture Starting");
@@ -233,6 +241,28 @@ namespace IGC
 
                 CI = AddToCaptureInformation(i, CI, center, transform: Camera.transform, filePath: filePath);
             }
+
+            int count = Frames;
+            foreach (GameObject ec in ExtraCaptures)
+            {
+                if (ec != null)
+                {
+                    Vector3 position = ec.transform.position;
+                    Quaternion rotation = ec.transform.rotation;
+                    Camera.transform.position = position;
+                    Camera.transform.rotation = rotation;
+                    MaskCamera.transform.position = position;
+                    MaskCamera.transform.rotation = rotation;
+
+                    string fileName = new string('0', 3 - count.ToString().Length) + count + ".png";
+                    string filePath = "./images/" + fileName;
+                    SaveRender(fileName);
+
+                    CI = AddToCaptureInformation(count, CI, position, transform: Camera.transform, filePath: filePath);
+                    count++;
+                }
+            }
+
             SaveInformationToJson(CI);
             CurrentStage = IGCStage.None;
             CaptureFinished("Capture finished");
@@ -265,6 +295,27 @@ namespace IGC
                 // wait until next frame...
                 yield return null;
             }
+            int count = Frames;
+            foreach (GameObject ec in ExtraCaptures)
+            {
+                if (ec != null)
+                {
+                    Vector3 position = ec.transform.position;
+                    Quaternion rotation = ec.transform.rotation;
+                    Camera.transform.position = position;
+                    Camera.transform.rotation = rotation;
+                    MaskCamera.transform.position = position;
+                    MaskCamera.transform.rotation = rotation;
+
+                    string fileName = new string('0', 3 - count.ToString().Length) + count + ".png";
+                    string filePath = "./images/" + fileName;
+                    SaveRender(fileName);
+
+                    CI = AddToCaptureInformation(count, CI, position, transform: Camera.transform, filePath: filePath);
+                    count++;
+                }
+            }
+
             SaveInformationToJson(CI);
             CaptureFinished("Capture finished");
             Debug.Log("Capture finished");
