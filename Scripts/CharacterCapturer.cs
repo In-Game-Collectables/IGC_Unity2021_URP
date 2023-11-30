@@ -90,7 +90,11 @@ namespace IGC
         [Tooltip("Saturation amount for rendered images")]
         public float Saturation = 1.0f;
 
-        public GameObject[] ExtraCaptures;
+        [Space(10)]
+        [Header("Custom Capturing")]
+
+        public bool GetAllExtraCapturesOnAwake = false;
+        public Object[] ExtraCaptures;
 
         private void OnDrawGizmos()
         {
@@ -114,6 +118,11 @@ namespace IGC
         {
             Spherical = GetComponent<SphericalManager>();
             Uploader = GetComponent<CaptureUploader>();
+
+            if (GetAllExtraCapturesOnAwake)
+            {
+                GetAllExtraCaptures();
+            }
         }
 
         void Start()
@@ -143,7 +152,7 @@ namespace IGC
         {
             if (Keyboard.current.kKey.wasPressedThisFrame)
             {
-                StartCapture(true);
+                StartCapture();
             }
             if (Keyboard.current.lKey.wasPressedThisFrame)
             {
@@ -214,20 +223,15 @@ namespace IGC
 
         //--------------------------------------------------------
 
-        private void GetAllExtraCaptures()
-        {
-            //FindObjectsOfTypeAll();
-        }
-
         private void Capture()
         {
             Debug.Log("Capture Starting");
             CurrentStage = IGCStage.Capturing;
             var CI = CreateCaptureInformation();
 
+                Vector3 center = transform.position;
             for (int i = 0; i < Frames; i++)
             {
-                Vector3 center = transform.position;
                 Vector3 position = Spherical.GetSpiralLocation(CaptureRadius, Frames, i, xSpeed, center, transform.forward, phiMin: 0.01f, phiMax: 0.99f);
                 // if phi = 0, camera doesn't point to target properly
                 Camera.transform.position = position;
@@ -258,7 +262,7 @@ namespace IGC
                     string filePath = "./images/" + fileName;
                     SaveRender(fileName);
 
-                    CI = AddToCaptureInformation(count, CI, position, transform: Camera.transform, filePath: filePath);
+                    CI = AddToCaptureInformation(count, CI, center, transform: Camera.transform, filePath: filePath);
                     count++;
                 }
             }
@@ -541,6 +545,15 @@ namespace IGC
             var transformsPath = Path.Combine(path, "transforms.json");
             if (File.Exists(transformsPath))
                 File.Delete(transformsPath);
+        }
+
+
+
+        private void GetAllExtraCaptures()
+        {
+            var FoundExtraCaptures = FindObjectsOfType(typeof(ExtraCapture));
+            //var FoundExtraCaptures = FindObjectsByType<ExtraCapture>(FindObjectsSortMode.None);
+            ExtraCaptures = FoundExtraCaptures;
         }
     }
 }
