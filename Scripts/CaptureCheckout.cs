@@ -4,14 +4,11 @@ using System.IO;
 
 using UnityEngine.Networking;
 using System;
-using UnityEditor.PackageManager.Requests;
 
 namespace IGC
 {
     public class CaptureCheckout : MonoBehaviour
     {
-        public string TestURL = "https://images.dog.ceo/breeds/pinscher-miniature/n02107312_6617.jpg";
-
         private IEnumerator checkoutCoroutine;
 
         public void GetCheckoutQR(string checkoutURL, Action<string, Texture2D> successCallback, Action<string> failureCallback, string savePath = " ")

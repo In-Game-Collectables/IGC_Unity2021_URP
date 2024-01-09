@@ -1,7 +1,9 @@
 # IGC Unity
 This document is currently a work in progress.
 
-[In Game Collectables](https://www.igc.studio/) Plugin built on Unity version 2021.3.28f1. Works with URP
+[In Game Collectables](https://www.igc.studio/) Plugin built on Unity version 2021.3.28f1. 
+* Works with URP
+* Tested on version 2022.3.13f1
 
 This plugin will capture renders spun around a character and export out a JSON file of the relative camera transforms. It will upload the necessary files to the IGC API to process to re-create a printable mesh.
 

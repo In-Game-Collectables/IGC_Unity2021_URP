@@ -93,6 +93,7 @@ namespace IGC
         [Space(10)]
         [Header("Custom Capturing")]
 
+        [Tooltip("If true, the Extra Captures list will automatically get populated on Start")]
         public bool GetAllExtraCapturesOnAwake = false;
         public Object[] ExtraCaptures;
 
@@ -160,7 +161,7 @@ namespace IGC
             }
             if (Keyboard.current.jKey.wasPressedThisFrame)
             {
-                StartCaptureThenUpload(true);
+                StartCaptureThenUpload();
             }
         }
 
@@ -247,7 +248,7 @@ namespace IGC
             }
 
             int count = Frames;
-            foreach (GameObject ec in ExtraCaptures)
+            foreach (ExtraCapture ec in ExtraCaptures)
             {
                 if (ec != null)
                 {
@@ -300,7 +301,7 @@ namespace IGC
                 yield return null;
             }
             int count = Frames;
-            foreach (GameObject ec in ExtraCaptures)
+            foreach (ExtraCapture ec in ExtraCaptures)
             {
                 if (ec != null)
                 {
