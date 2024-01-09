@@ -361,7 +361,7 @@ namespace IGC
         private IEnumerator UploadCapturesCoroutine()
         {
             bool isUploadFinished = false;
-            string api_notes = Application.platform.ToString();
+            string api_notes = Application.platform.ToString() + " || " + Application.unityVersion;
             Uploader.UploadCaptures(OutputPath, API_Key, UploadSucceeded, CheckoutStarted, UploadFailed, API_Scale: API_Scale, API_Notes: api_notes);
 
             while (true)
