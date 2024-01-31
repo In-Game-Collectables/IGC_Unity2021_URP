@@ -445,7 +445,7 @@ namespace IGC
             MaskerMat.SetFloat("_Saturation", Saturation);
 
             Texture2D RGBImage = GetCameraImage(Camera);
-            MaskerMat.SetTexture("_RGB", RGBImage);
+            MaskerMat.SetTexture("_MainTex", RGBImage);
             Texture2D Output;
             if (ShownLayers.Length != 0)
             {

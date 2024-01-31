@@ -2,7 +2,7 @@ Shader"IGC/CaptureMasker"
 {
     Properties
     {
-        _RGB ("RGB", 2D) = "white" {}
+        _MainTex ("RGB", 2D) = "white" {}
         _Mask ("Mask", 2D) = "white" {}
         _Brightness ("Brightness", Float) = 1.0
         _Contrast("Contrast", Float) = 1.0
@@ -36,9 +36,9 @@ Shader"IGC/CaptureMasker"
                 float4 vertex : SV_POSITION;
             };
 
-            sampler2D _RGB;
+            sampler2D _MainTex;
             sampler2D _Mask;
-            float4 _RGB_ST;
+            float4 _MainTex_ST;
             float _Brightness;
             float _Contrast;
             float _Saturation;
@@ -47,7 +47,7 @@ Shader"IGC/CaptureMasker"
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _RGB);
+                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
@@ -55,7 +55,7 @@ Shader"IGC/CaptureMasker"
             fixed4 frag (v2f i) : SV_Target
             {
                 // sample the texture
-                fixed4 col = tex2D(_RGB, i.uv);
+                fixed4 col = tex2D(_MainTex, i.uv);
                 fixed alpha = tex2D(_Mask, i.uv).a;
                 fixed b = _Brightness;
                 fixed c = _Contrast;
