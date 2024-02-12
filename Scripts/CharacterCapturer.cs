@@ -362,6 +362,11 @@ namespace IGC
         {
             bool isUploadFinished = false;
             string api_notes = Application.platform.ToString() + " || " + Application.unityVersion;
+            if (Application.isConsolePlatform)
+            {
+                Debug.LogWarning("The IGC plugin has not been tested with consoles and may not work. Please contact IGC for more information.");
+            }
+
             Uploader.UploadCaptures(OutputPath, API_Key, UploadSucceeded, CheckoutStarted, UploadFailed, API_Scale: API_Scale, API_Notes: api_notes);
 
             while (true)
