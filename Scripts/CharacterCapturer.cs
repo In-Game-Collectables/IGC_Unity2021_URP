@@ -385,6 +385,7 @@ namespace IGC
                 {
                     onUploadSuccess(orderURL, qrCode);
                 }
+                DeleteCaptures(OutputPath);
             }
 
             void CheckoutStarted()
@@ -402,6 +403,7 @@ namespace IGC
                 {
                     onUploadError(errorMessage);
                 }
+                DeleteCaptures(OutputPath);
             }
         }
 
