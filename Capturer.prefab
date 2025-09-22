@@ -50,18 +50,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   API_Key: TEST_KEY
-  target: {fileID: 0}
-  MaskerMat: {fileID: 2100000, guid: 478b4b8b6a2d15c4b82ba89e08de0e71, type: 2}
-  depthFormat: 0
   CaptureRadius: 3.5
   FOV: 45
   Frames: 100
   Dimension: 1024
-  HeightOffset: 0.85
   ShownLayers:
-  - Character
+  - Default
   CustomOutputPath: 
+  MaskerMat: {fileID: 2100000, guid: 478b4b8b6a2d15c4b82ba89e08de0e71, type: 2}
+  depthFormat: 16
   CurrentStage: 0
+  Brightness: 1
+  Contrast: 1
+  Saturation: 1
+  GetAllExtraCapturesOnAwake: 0
+  ExtraCaptures: []
 --- !u!114 &5730325559657656804
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98,7 +101,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a720222bbb98ca545b683ccfb1ea4243, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TestURL: https://images.dog.ceo/breeds/pinscher-miniature/n02107312_6617.jpg
 --- !u!1 &4464528950513410514
 GameObject:
   m_ObjectHideFlags: 0
